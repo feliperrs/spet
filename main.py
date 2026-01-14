@@ -47,18 +47,26 @@ def add_new_category():
     save_categories(categories) # send the "copy" set to save_categories()
     
 
+def list_categories():
+    categories = load_categories()
+    print("Choose a category:")
+    print("0 - Add new category")
+    for index, category in enumerate(sorted(categories), start=1):
+        print(f"{index} - {category}")
 
 def add_new_expense():
-    print("# Adding a new expense #")
-    print("Choose a category:")
-    print("CATEGORY LIST")
-    print("0 - Add new category")
+    print("# Adding a new expense #\n")
+    list_categories()
     choice = int(input(">>> "))
     if choice == 0:
         add_new_category()
     date = datetime.today().strftime('%Y-%m-%d')
     new_expense = {
-        "date" : date
+        "date" : date,
+        "category" : "",
+        "amount" : "",
+        "description" : "", 
+        "payment_method" : "" 
     }
     print(new_expense)
 
