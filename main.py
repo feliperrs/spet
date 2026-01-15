@@ -31,20 +31,22 @@ def save_categories(categories: set):   # receive a set from add_new_category()
         json.dump(sorted(categories), file, indent=2) # save the set as a sorted list
 
 def add_new_category():
-    categories = load_categories()
-    
-    print("Type the new category:")
-    new_category = input("\n>>> ").strip().lower()
-    if not new_category:
-        print("Category cannot be empty!\n")
-        return
-    if new_category in categories:
-        print("This category already exists.\n")
-        return
+    while True:
+        categories = load_categories()
         
-    categories.add(new_category)  # add new category to "copy" set
-    save_categories(categories) # send the "copy" set to save_categories()
-    return new_category
+        print("Type the new category:")
+        new_category = input("\n>>> ").strip().lower()
+        if not new_category:
+            print("Category cannot be empty!\n")
+            continue
+        if new_category in categories:
+            print("This category already exists.\n")
+            return new_category
+        
+        print(f"\nNew category '{new_category.title()}' added")   
+        categories.add(new_category)  # add new category to "copy" set
+        save_categories(categories) # send the "copy" set to save_categories()
+        return new_category
 
 def list_categories():
     categories = load_categories()
@@ -55,33 +57,60 @@ def list_categories():
 
 
 def select_category():
-    categories = sorted(load_categories())
-    choice = int(input(">>> "))
-    if choice == 0:
-        selected_category = add_new_category()
-    elif 1 <= choice <= len(categories):
-        selected_category = categories[choice - 1]
-    return selected_category
+    while True:
+        categories = sorted(load_categories())
+        try:
+            choice = int(input(">>> "))
+        except ValueError:
+            print(f"\nSelect a NUMBER from 0 to {len(categories)}\n")
+            continue
+        else:
+            if choice == 0:
+                selected_category = add_new_category()
+            elif 1 <= choice <= len(categories):
+                selected_category = categories[choice - 1]
+            else:
+                print(f"\nSelect from 0 to {len(categories)}\n")
+                continue
+        return selected_category
 
 def select_amount():
-    print("Enter the amount")
-    amount = float(input("\n>>> "))
-    return amount
+    while True:
+        print("\nEnter the amount")
+        try:
+            amount = float(input("\n>>> "))
+        except ValueError:
+            print("\nInsert a number")
+            continue
+        return amount
 
 def select_description():
-    print("Enter a short description")
-    description = input(">>> ")
-    return description
+    while True:
+        print("\nEnter a short description")
+        description = input("\n>>> ")
+        if not description:
+            print("\nYou must enter a short description")
+            continue
+        return description
 
 def select_payment_method():
-    print("Select the payment method:")
-    payment_methods_list = ["cash", "credit", "debit"]
-    for index, choice in enumerate(payment_methods_list, start=1):
-        print(f"{index} - {choice.title()}")
-    choice = int(input(">>> "))
-    if 1 <= choice <= len(payment_methods_list):
-        selected_payment_method = payment_methods_list[choice - 1]
-    return selected_payment_method
+    while True:
+        print("\nSelect the payment method:")
+        payment_methods_list = ["cash", "credit", "debit"]
+        for index, choice in enumerate(payment_methods_list, start=1):
+            print(f"{index} - {choice.title()}")
+        try:
+            choice = int(input("\n>>> "))
+        except ValueError:
+            print(f"\nYou must enter a NUMBER from 1 to {len(payment_methods_list)}")
+            continue
+        else:
+            if 1 <= choice <= len(payment_methods_list):
+                selected_payment_method = payment_methods_list[choice - 1]
+            else:
+                print(f"\nSelect an option from 1 to {len(payment_methods_list)}")
+                continue
+        return selected_payment_method
         
 
 def add_new_expense():
