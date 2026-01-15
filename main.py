@@ -34,39 +34,70 @@ def add_new_category():
     categories = load_categories()
     
     print("Type the new category:")
-    new_category = input(">>> ").strip().lower()
-
+    new_category = input("\n>>> ").strip().lower()
     if not new_category:
         print("Category cannot be empty!\n")
         return
     if new_category in categories:
         print("This category already exists.\n")
         return
-    
+        
     categories.add(new_category)  # add new category to "copy" set
     save_categories(categories) # send the "copy" set to save_categories()
-    
+    return new_category
 
 def list_categories():
     categories = load_categories()
     print("Choose a category:")
     print("0 - Add new category")
     for index, category in enumerate(sorted(categories), start=1):
-        print(f"{index} - {category}")
+        print(f"{index} - {category.title()}")
 
-def add_new_expense():
-    print("# Adding a new expense #\n")
-    list_categories()
+
+def select_category():
+    categories = sorted(load_categories())
     choice = int(input(">>> "))
     if choice == 0:
-        add_new_category()
+        selected_category = add_new_category()
+    elif 1 <= choice <= len(categories):
+        selected_category = categories[choice - 1]
+    return selected_category
+
+def select_amount():
+    print("Enter the amount")
+    amount = float(input("\n>>> "))
+    return amount
+
+def select_description():
+    print("Enter a short description")
+    description = input(">>> ")
+    return description
+
+def select_payment_method():
+    print("Select the payment method:")
+    payment_methods_list = ["cash", "credit", "debit"]
+    for index, choice in enumerate(payment_methods_list, start=1):
+        print(f"{index} - {choice.title()}")
+    choice = int(input(">>> "))
+    if 1 <= choice <= len(payment_methods_list):
+        selected_payment_method = payment_methods_list[choice - 1]
+    return selected_payment_method
+        
+
+def add_new_expense():
+    print("\n# Adding a new expense #\n")
+    list_categories()
+    category = select_category()
+    amount = select_amount()
+    description = select_description()
+    payment_method = select_payment_method()
     date = datetime.today().strftime('%Y-%m-%d')
     new_expense = {
         "date" : date,
-        "category" : "",
-        "amount" : "",
-        "description" : "", 
-        "payment_method" : "" 
+        "category" : category,
+        "amount" : amount,
+        "description" : description, 
+        "payment_method" : payment_method 
     }
     print(new_expense)
 
