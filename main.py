@@ -1,5 +1,8 @@
 import json
 from datetime import datetime
+import os
+
+cls = lambda: os.system('cls') # cleans console
 
 
 def main_menu():
@@ -12,6 +15,7 @@ def main_menu():
     choice = int(input('\n>>> '))
     return choice
 
+# -------------------------------- CATEGORIES -------------------------------- #
 
 def load_categories():
     try:
@@ -23,7 +27,7 @@ def load_categories():
         return set()    # return an empty set if there is no categories.json
     except json.decoder.JSONDecodeError:
         raise ValueError(
-            "categories.json exists but contains invalid JSON. "
+            "categories.json exists but contains invalid JSON."
         )
 
 def save_categories(categories: set):   # receive a set from add_new_category()
@@ -55,7 +59,6 @@ def list_categories():
     for index, category in enumerate(sorted(categories), start=1):
         print(f"{index} - {category.title()}")
 
-
 def select_category():
     while True:
         categories = sorted(load_categories())
@@ -74,6 +77,8 @@ def select_category():
                 continue
         return selected_category
 
+# ---------------------------------- AMOUNT ---------------------------------- #
+
 def select_amount():
     while True:
         print("\nEnter the amount")
@@ -84,6 +89,8 @@ def select_amount():
             continue
         return amount
 
+# -------------------------------- DESCRIPTION ------------------------------- #
+
 def select_description():
     while True:
         print("\nEnter a short description")
@@ -92,6 +99,8 @@ def select_description():
             print("\nYou must enter a short description")
             continue
         return description
+
+# ------------------------------ PAYMENT METHOD ------------------------------ #
 
 def select_payment_method():
     while True:
@@ -112,7 +121,28 @@ def select_payment_method():
                 continue
         return selected_payment_method
         
+# ---------------------------------- EXPENSE --------------------------------- #
 
+def load_expenses():
+    try:
+        with open ("expenses.json", "r") as file:
+            return list(json.load(file))
+    except FileNotFoundError:
+        with open ("expenses.json", "w") as file:
+            json.dump([], file)
+            return list()
+    except json.decoder.JSONDecodeError:
+        raise ValueError(
+            "expenses.json exists but contains invalid JSON."
+        )
+    
+def save_new_expense(expense):
+    expenses = load_expenses()
+    expenses.append(expense) 
+    with open ("expenses.json", "w") as file:
+        json.dump(expenses, file, indent=2)    
+    
+    
 def add_new_expense():
     print("\n# Adding a new expense #\n")
     list_categories()
@@ -128,16 +158,28 @@ def add_new_expense():
         "description" : description, 
         "payment_method" : payment_method 
     }
+    save_new_expense(new_expense)
     print(new_expense)
 
+# ------------------------------- VIEW EXPENSES ------------------------------ #
+
 def view_all_expenses():
-    pass
+    expenses_list = load_expenses()
+    cls()
+    for expense in expenses_list:
+        print(f"Description: {expense['description']}")
+        print(f"Amount: ${expense['amount']}")
+        print(f"Category: {expense['category']}")
+        print(f"Payment Method: {expense['payment_method']}")
+        print(f"Date: {expense['date']}\n")
 
 def filter_expenses():
     pass
 
 def monthly_report():
     pass
+
+# ----------------------------------- MAIN ----------------------------------- #
 
 while True:
     try:
