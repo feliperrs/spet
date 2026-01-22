@@ -2,10 +2,20 @@ import json
 from datetime import datetime
 import os
 
-cls = lambda: os.system('cls') # cleans console
+def cls():
+    """
+    Clear the terminal screen.
+    Works on both Windows and Unix-based systems.
+    """
+    os.system('cls' if os.name == 'nt' else 'clear' )
 
 
 def main_menu():
+    """
+    Display the main menu options and return the user's choice.
+    Returns:
+        int: The selected menu option.
+    """
     print("What do you want to do ?")
     print("1 - Add a new expense")
     print("2 - View all expenses")
@@ -18,23 +28,40 @@ def main_menu():
 # -------------------------------- CATEGORIES -------------------------------- #
 
 def load_categories():
+    """
+    Load categories from 'categories.json'.
+    Returns:
+        set[str]: A set of category names so there's no duplicates.
+    Raises:
+        ValueError: If the JSON file exists but contains invalid data.
+    """
     try:
         with open("categories.json", "r") as file:
-            return set(json.load(file)) # return saved list as a set
+            return set(json.load(file))
     except FileNotFoundError:
         with open("categories.json", "w") as file:
-            json.dump([], file) # creates a new categories.json with empty list
-        return set()    # return an empty set if there is no categories.json
+            json.dump([], file)
+        return set()
     except json.decoder.JSONDecodeError:
         raise ValueError(
             "categories.json exists but contains invalid JSON."
         )
 
-def save_categories(categories: set):   # receive a set from add_new_category()
+def save_categories(categories):
+    """
+    Save categories to 'categories.json'.
+    Args:
+        categories (set[str]): Set of category names to be saved.
+    """
     with open("categories.json", "w") as file:
-        json.dump(sorted(categories), file, indent=2) # save the set as a sorted list
+        json.dump(sorted(categories), file, indent=2) 
 
 def add_new_category():
+    """
+    Prompt the user to add a new category.
+    Returns:
+        str: The newly added or existing category name.
+    """
     while True:
         categories = load_categories()
         
@@ -53,6 +80,9 @@ def add_new_category():
         return new_category
 
 def list_categories():
+    """
+    Display all available categories to the user.
+    """
     categories = load_categories()
     print("Choose a category:")
     print("0 - Add new category")
@@ -60,6 +90,11 @@ def list_categories():
         print(f"{index} - {category.title()}")
 
 def select_category():
+    """
+    Allow the user to select an existing category or create a new one.
+    Returns:
+        str: The selected category.
+    """
     while True:
         categories = sorted(load_categories())
         try:
@@ -83,6 +118,11 @@ def select_category():
 # ---------------------------------- AMOUNT ---------------------------------- #
 
 def select_amount():
+    """
+    Prompt the user to enter a numeric expense amount.
+    Returns:
+        float: The validated expense amount.
+    """
     cls()
     while True:
         print("Enter the amount")
@@ -97,6 +137,11 @@ def select_amount():
 # -------------------------------- DESCRIPTION ------------------------------- #
 
 def select_description():
+    """
+    Prompt the user to enter a short description for the expense.
+    Returns:
+        str: The validated description.
+    """
     cls()
     while True:
         print("Enter a short description")
@@ -110,6 +155,11 @@ def select_description():
 # ------------------------------ PAYMENT METHOD ------------------------------ #
 
 def select_payment_method():
+    """
+    Prompt the user to select a payment method.
+    Returns:
+        str: The selected payment method ('cash', 'credit', or 'debit').
+    """
     cls()
     while True:
         print("Select the payment method:")
@@ -134,6 +184,13 @@ def select_payment_method():
 # ---------------------------------- EXPENSE --------------------------------- #
 
 def load_expenses():
+    """
+    Load expenses from 'expenses.json'.
+    Returns:
+        list[dict]: A list of expense records.
+    Raises:
+        ValueError: If the JSON file exists but contains invalid data.
+    """
     try:
         with open ("expenses.json", "r") as file:
             return list(json.load(file))
@@ -147,6 +204,11 @@ def load_expenses():
         )
     
 def save_new_expense(expense):
+    """
+    Save a new expense to 'expenses.json'.
+    Args:
+        expense (dict): The expense record to be saved.
+    """
     expenses = load_expenses()
     expenses.append(expense) 
     with open ("expenses.json", "w") as file:
@@ -154,6 +216,10 @@ def save_new_expense(expense):
     
     
 def add_new_expense():
+    """
+    Collect user input and create a new expense entry.
+    """
+
     category = select_category()
     amount = select_amount()
     description = select_description()
@@ -177,26 +243,50 @@ def add_new_expense():
 
 # ------------------------------- VIEW EXPENSES ------------------------------ #
 
+def print_expense(expense):
+    """
+    Print a formatted representation of a single expense.
+    Args:
+        expense (dict): A dictionary containing expense details such as
+                        description, amount, category, payment method, and date.
+    """
+    print(f"Description: {expense['description'].capitalize()}")
+    print(f"Amount: ${expense['amount']:.2f}")
+    print(f"Category: {expense['category'].capitalize()}")
+    print(f"Payment Method: {expense['payment_method'].title()}")
+    print(f"Date: {expense['date']}\n")
+        
 def view_all_expenses():
+    """
+    Display all saved expenses in a formatted list.
+    If no expenses exist, inform the user.
+    """
     expenses_list = load_expenses()
     cls()
+    if not expenses_list:
+        print("The expenses list is empty!\n")
+        return
     print("List of Expenses:\n")
     for expense in expenses_list:
-        print(f"Description: {expense['description']}")
-        print(f"Amount: ${expense['amount']:.2f}")
-        print(f"Category: {expense['category'].capitalize()}")
-        print(f"Payment Method: {expense['payment_method'].title()}")
-        print(f"Date: {expense['date']}\n")
+        print_expense(expense)
 
 # ----------------------------- FILTER EXPENESES ----------------------------- #
 
 def list_filter_categories():
+    """
+    Display all existing categories for filtering expenses.
+    """
     categories = load_categories()
     print("Choose a category:")
     for index, category in enumerate(sorted(categories), start=1):
         print(f"{index} - {category.title()}")
 
 def select_filter_categories():
+    """
+    Prompt the user to select a category for filtering.
+    Returns:
+        str: The selected category name.
+    """
     while True:
         categories = sorted(load_categories())
         try:
@@ -215,6 +305,9 @@ def select_filter_categories():
         return selected_category
 
 def filter_by_category():
+    """
+    Filter and display expenses that match a selected category.
+    """
     cls()
     list_filter_categories()
     category = select_filter_categories()
@@ -222,24 +315,22 @@ def filter_by_category():
     cls()
     for expense in expenses_list:
         if category == expense["category"]:
-            print(f"\nDescription: {expense['description'].capitalize()}")
-            print(f"Amount: ${expense['amount']:.2f}")
-            print(f"Category: {expense['category'].title()}")
-            print(f"Payment Method: {expense['payment_method'].title()}")
-            print(f"Date: {expense['date']}\n")
+            print_expense(expense)
 
 def filter_by_payment_method():
+    """
+    Filter and display expenses based on the selected payment method.
+    """
     selected_payment_method = select_payment_method()
     expenses_list = load_expenses()
     for payment in expenses_list:
         if selected_payment_method == payment["payment_method"]:
-            print(f"\nDescription: {payment['description'].capitalize()}")
-            print(f"Amount: ${payment['amount']:.2f}")
-            print(f"Category: {payment['category'].title()}")
-            print(f"Payment Method: {payment['payment_method'].title()}")
-            print(f"Date: {payment['date']}\n")
+            print_expense(payment)
 
 def filter_by_date():
+    """
+    Filter and display expenses by selected month (YYYY-MM).
+    """
     cls()
     while True:
         expenses_list = load_expenses()
@@ -260,11 +351,7 @@ def filter_by_date():
             selected_month = date_list[month_choice - 1]
             for expense in expenses_list:
                 if expense['date'][:7] == selected_month:
-                    print(f"\nDescription: {expense['description'].capitalize()}")
-                    print(f"Amount: ${expense['amount']:.2f}")
-                    print(f"Category: {expense['category'].title()}")
-                    print(f"Payment Method: {expense['payment_method'].title()}")
-                    print(f"Date: {expense['date']}\n")
+                    print_expense(expense)
         else:
             cls()
             print(f"Select from 1 to {len(date_list)}\n")
@@ -272,7 +359,15 @@ def filter_by_date():
     
     
 def filter_expenses():
+    """
+    Display filtering options and apply the selected filter
+    (category, payment method, or date).
+    """
+    expense_list = load_expenses()
     while True:
+        if not expense_list:
+            print("The expenses list is empty!\n")
+            break
         print("How do you want to filter?\n")
         print("1 - By CATEGORY")
         print("2 - By PAYMENT METHOD")
@@ -300,6 +395,11 @@ def filter_expenses():
 # ---------------------------------- REPORT ---------------------------------- #
 
 def select_month_report():
+    """
+    Prompt the user to select a month for the monthly report.
+    Returns:
+        str: The selected month in YYYY-MM format.
+    """
     cls()
     while True:
         expenses_list = load_expenses()
@@ -325,6 +425,11 @@ def select_month_report():
         return selected_month
 
 def monthly_report_summary(selected_month):
+    """
+    Display a summary of expenses for a given month.
+    Args:
+        selected_month (str): Month in YYYY-MM format.
+    """
     cls()
     print(f"MONTHLY SUMMARY FOR {selected_month}\n")
     expenses_list = load_expenses()
@@ -334,13 +439,21 @@ def monthly_report_summary(selected_month):
         if expense['date'][:7] == selected_month:
             total_spent += expense['amount']
             total_transactions += 1
-    average_expense = total_spent / total_transactions
+    if total_transactions == 0:
+        average_expense = 0
+    else:
+        average_expense = total_spent / total_transactions
     
     print(f"Total spent: ${total_spent}")
     print(f"Transactions: {total_transactions}")
     print(f"Average expense: ${average_expense}")
 
 def category_breakdown(selected_month):
+    """
+    Display a category-based breakdown of expenses for a given month.
+    Args:
+        selected_month (str): Month in YYYY-MM format.
+    """
     expenses_list = load_expenses()
     
     total_spent = 0
@@ -368,33 +481,46 @@ def category_breakdown(selected_month):
     
     
 def payment_method_breakdown(selected_month):
+    """
+    Display a payment-method-based breakdown of expenses for a given month.
+    Args:
+        selected_month (str): Month in YYYY-MM format.
+    """
     expenses_list = load_expenses()
     
     total_spent = 0
-    paymenth_method_totals = {}
+    payment_method_totals = {}
     
     for expense in expenses_list:
         if expense['date'][:7]== selected_month:
             total_spent += expense['amount']
             payment_method = expense['payment_method']
             amount = expense['amount']
-            if expense['payment_method'] not in paymenth_method_totals:
-                paymenth_method_totals[payment_method] = 0
-            paymenth_method_totals[payment_method] += amount
+            if expense['payment_method'] not in payment_method_totals:
+                payment_method_totals[payment_method] = 0
+            payment_method_totals[payment_method] += amount
     
     print(f"\nPayment Method Breakdown:")
     payment_method_percentages = {}
-    for method, amount in paymenth_method_totals.items():
+    for method, amount in payment_method_totals.items():
         percentage = (amount / total_spent) * 100
         payment_method_percentages[method] = percentage
     
-    for method in paymenth_method_totals:
-        amount = paymenth_method_totals[method]
+    for method in payment_method_totals:
+        amount = payment_method_totals[method]
         percentage = payment_method_percentages[method]
         print(f"- {method.title()} : ${amount:.2f} ({percentage:.2f}%)")
         
         
 def monthly_report():
+    """
+    Generate and display the full monthly expense report,
+    including summary, category breakdown, and payment method breakdown.
+    """
+    expenses_list = load_expenses()
+    if not expenses_list:
+        print("The expenses list is empty!\n")
+        return
     selected_month = select_month_report()
     monthly_report_summary(selected_month)
     category_breakdown(selected_month)
@@ -402,7 +528,7 @@ def monthly_report():
     print("\n")
 
 # ----------------------------------- MAIN ----------------------------------- #
-
+# Controls the application flow and routes user choices to the correct actions
 while True:
     try:
         user_choice = main_menu()
